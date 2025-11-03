@@ -1,10 +1,11 @@
-import { useState } from "react"
-import { useParams } from "react-router-dom"
-import { motion } from "framer-motion"
-import ApperIcon from "@/components/ApperIcon"
-import Button from "@/components/atoms/Button"
-import SearchBar from "@/components/molecules/SearchBar"
-import { cn } from "@/utils/cn"
+import React, { useContext, useState } from "react";
+import { useParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
+import Error from "@/components/ui/Error";
+import SearchBar from "@/components/molecules/SearchBar";
+import { cn } from "@/utils/cn";
 
 const Header = ({ onMenuClick, boardName }) => {
   const { boardId } = useParams()
@@ -134,7 +135,20 @@ const Header = ({ onMenuClick, boardName }) => {
           )}
 
           {/* User menu */}
-          <div className="relative">
+<div className="relative flex items-center space-x-3">
+            <button 
+              onClick={async () => {
+                const { AuthContext } = await import('../../App');
+                const authMethods = React.useContext(AuthContext);
+                if (authMethods?.logout) {
+                  await authMethods.logout();
+                }
+              }}
+              className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ApperIcon name="LogOut" className="w-4 h-4" />
+              Logout
+            </button>
             <button className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 transition-colors">
               <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-medium">
                 JD

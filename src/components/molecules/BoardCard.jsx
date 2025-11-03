@@ -51,7 +51,7 @@ const BoardCard = ({ board, className }) => {
       <div className="p-6">
         <div className="flex items-start justify-between mb-3">
           <h3 className="text-lg font-semibold text-gray-900 font-display line-clamp-1">
-            {board.name}
+{board.name}
           </h3>
           <button className="text-gray-400 hover:text-gray-600 transition-colors">
             <ApperIcon name="MoreHorizontal" className="w-4 h-4" />

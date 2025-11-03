@@ -1,225 +1,422 @@
-// Mock data for comments - replace with real API calls when backend is available
-let mockComments = [
-  {
-    Id: 1,
-    itemId: 1,
-    content: "Initial task setup completed. @sarah.chen please review the requirements document.",
-    author: {
-      Id: 1,
-      name: "Alex Thompson",
-      email: "alex@company.com",
-      avatar: null
-    },
-    mentions: ["sarah.chen"],
-    createdAt: new Date('2024-01-10T09:30:00'),
-    updatedAt: new Date('2024-01-10T09:30:00')
-  },
-  {
-    Id: 2,
-    itemId: 1,
-    content: "Thanks @alex.thompson! I've reviewed and added some feedback. @mike.rodriguez can you handle the backend integration?",
-    author: {
-      Id: 2,
-      name: "Sarah Chen",
-      email: "sarah@company.com", 
-      avatar: null
-    },
-    mentions: ["alex.thompson", "mike.rodriguez"],
-    createdAt: new Date('2024-01-11T14:15:00'),
-    updatedAt: new Date('2024-01-11T14:15:00')
-  },
-  {
-    Id: 3,
-    itemId: 2,
-    content: "Working on the API endpoints now. Should have this ready by EOD today.",
-    author: {
-      Id: 3,
-      name: "Mike Rodriguez",
-      email: "mike@company.com",
-      avatar: null
-    },
-    mentions: [],
-    createdAt: new Date('2024-01-11T16:45:00'),
-    updatedAt: new Date('2024-01-11T16:45:00')
-  }
-]
-
-let nextId = 4
+import { toast } from 'react-toastify';
 
 const commentsService = {
-  // Get all comments for a specific item
+  // Initialize ApperClient
+  getApperClient() {
+    const { ApperClient } = window.ApperSDK;
+    return new ApperClient({
+      apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+      apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+    });
+  },
+
+  // Get all comments for a specific item from comment_c table
   getAll: async (itemId) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300))
-    
-    return mockComments
-      .filter(comment => comment.itemId === parseInt(itemId))
-      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-  },
+    try {
+      const apperClient = commentsService.getApperClient();
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "content_c"}},
+          {"field": {"Name": "author_id_c"}},
+          {"field": {"Name": "mentions_c"}},
+          {"field": {"Name": "CreatedOn"}},
+          {"field": {"Name": "ModifiedOn"}}
+        ],
+        where: [{"FieldName": "item_id_c", "Operator": "EqualTo", "Values": [parseInt(itemId)]}],
+        orderBy: [{"fieldName": "CreatedOn", "sorttype": "ASC"}]
+      };
 
-  // Get a specific comment by ID
-  getById: async (id) => {
-    await new Promise(resolve => setTimeout(resolve, 200))
-    
-    const comment = mockComments.find(c => c.Id === parseInt(id))
-    if (!comment) {
-      throw new Error(`Comment with ID ${id} not found`)
-    }
-    return { ...comment }
-  },
-
-  // Create a new comment
-  create: async (commentData) => {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // Extract mentions from content
-    const mentionMatches = commentData.content.match(/@(\w+(?:\.\w+)*)/g) || []
-    const mentions = mentionMatches.map(match => match.substring(1))
-    
-    const newComment = {
-      Id: nextId++,
-      itemId: parseInt(commentData.itemId),
-      content: commentData.content.trim(),
-      author: commentData.author || {
-        Id: 1,
-        name: "Current User",
-        email: "user@company.com",
-        avatar: null
-      },
-      mentions,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-
-    mockComments.push(newComment)
-    return { ...newComment }
-  },
-
-  // Update an existing comment
-  update: async (id, updateData) => {
-    await new Promise(resolve => setTimeout(resolve, 400))
-    
-    const commentIndex = mockComments.findIndex(c => c.Id === parseInt(id))
-    if (commentIndex === -1) {
-      throw new Error(`Comment with ID ${id} not found`)
-    }
-
-    // Re-extract mentions if content was updated
-    let mentions = mockComments[commentIndex].mentions
-    if (updateData.content) {
-      const mentionMatches = updateData.content.match(/@(\w+(?:\.\w+)*)/g) || []
-      mentions = mentionMatches.map(match => match.substring(1))
-    }
-
-    const updatedComment = {
-      ...mockComments[commentIndex],
-      ...updateData,
-      mentions,
-      updatedAt: new Date()
-    }
-
-    mockComments[commentIndex] = updatedComment
-    return { ...updatedComment }
-  },
-
-  // Delete a comment
-  delete: async (id) => {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    
-    const commentIndex = mockComments.findIndex(c => c.Id === parseInt(id))
-    if (commentIndex === -1) {
-      throw new Error(`Comment with ID ${id} not found`)
-    }
-
-    mockComments.splice(commentIndex, 1)
-    return { success: true }
-  },
-
-  // Get team members for mention suggestions
-  getTeamMembers: async () => {
-    await new Promise(resolve => setTimeout(resolve, 200))
-    
-    return [
-      { 
-        Id: 1, 
-        name: "Alex Thompson", 
-        username: "alex.thompson", 
-        email: "alex@company.com",
-        avatar: null,
-        role: "Project Manager"
-      },
-      { 
-        Id: 2, 
-        name: "Sarah Chen", 
-        username: "sarah.chen", 
-        email: "sarah@company.com",
-        avatar: null,
-        role: "Frontend Developer" 
-      },
-      { 
-        Id: 3, 
-        name: "Mike Rodriguez", 
-        username: "mike.rodriguez", 
-        email: "mike@company.com",
-        avatar: null,
-        role: "Backend Developer"
-      },
-      { 
-        Id: 4, 
-        name: "Emily Davis", 
-        username: "emily.davis", 
-        email: "emily@company.com",
-        avatar: null,
-        role: "Designer"
-      },
-      { 
-        Id: 5, 
-        name: "David Wilson", 
-        username: "david.wilson", 
-        email: "david@company.com",
-        avatar: null,
-        role: "QA Engineer"
-      },
-      { 
-        Id: 6, 
-        name: "Lisa Garcia", 
-        username: "lisa.garcia", 
-        email: "lisa@company.com",
-        avatar: null,
-        role: "DevOps Engineer"
+      const response = await apperClient.fetchRecords('comment_c', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        return [];
       }
-    ]
+
+      // Get team members for author information
+      const teamMembers = await commentsService.getTeamMembers();
+      
+      return response.data.map(comment => ({
+        Id: comment.Id,
+        itemId: parseInt(itemId),
+        content: comment.content_c || '',
+        author: teamMembers.find(member => member.Id === comment.author_id_c) || {
+          Id: comment.author_id_c,
+          name: 'Unknown User',
+          email: 'unknown@company.com',
+          avatar: null
+        },
+        mentions: comment.mentions_c ? JSON.parse(comment.mentions_c) : [],
+        createdAt: comment.CreatedOn,
+        updatedAt: comment.ModifiedOn
+      }));
+    } catch (error) {
+      console.error("Error fetching comments:", error?.response?.data?.message || error);
+      return [];
+    }
+  },
+
+  // Get a specific comment by ID from comment_c table
+  getById: async (id) => {
+    try {
+      const apperClient = commentsService.getApperClient();
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "content_c"}},
+          {"field": {"Name": "author_id_c"}},
+          {"field": {"Name": "mentions_c"}},
+          {"field": {"Name": "item_id_c"}},
+          {"field": {"Name": "CreatedOn"}},
+          {"field": {"Name": "ModifiedOn"}}
+        ]
+      };
+
+      const response = await apperClient.getRecordById('comment_c', parseInt(id), params);
+      
+      if (!response.success || !response.data) {
+        throw new Error(`Comment with ID ${id} not found`);
+      }
+
+      const comment = response.data;
+      
+      // Get author information
+      const teamMembers = await commentsService.getTeamMembers();
+      const author = teamMembers.find(member => member.Id === comment.author_id_c);
+
+      return {
+        Id: comment.Id,
+        itemId: comment.item_id_c,
+        content: comment.content_c || '',
+        author: author || {
+          Id: comment.author_id_c,
+          name: 'Unknown User',
+          email: 'unknown@company.com',
+          avatar: null
+        },
+        mentions: comment.mentions_c ? JSON.parse(comment.mentions_c) : [],
+        createdAt: comment.CreatedOn,
+        updatedAt: comment.ModifiedOn
+      };
+    } catch (error) {
+      console.error(`Error fetching comment ${id}:`, error?.response?.data?.message || error);
+      throw error;
+    }
+  },
+
+  // Create a new comment in comment_c table
+  create: async (commentData) => {
+    try {
+      const apperClient = commentsService.getApperClient();
+      
+      // Extract mentions from content
+      const mentionMatches = commentData.content.match(/@(\w+(?:\.\w+)*)/g) || [];
+      const mentions = mentionMatches.map(match => match.substring(1));
+
+      const params = {
+        records: [{
+          item_id_c: parseInt(commentData.itemId),
+          content_c: commentData.content.trim(),
+          author_id_c: parseInt(commentData.author?.Id || 1),
+          mentions_c: JSON.stringify(mentions)
+        }]
+      };
+
+      const response = await apperClient.createRecord('comment_c', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to create ${failed.length} comments:`, failed);
+          failed.forEach(record => {
+            record.errors?.forEach(error => toast.error(`${error.fieldLabel}: ${error}`));
+            if (record.message) toast.error(record.message);
+          });
+        }
+
+        if (successful.length > 0) {
+          const createdComment = successful[0].data;
+          
+          // Get author information
+          const teamMembers = await commentsService.getTeamMembers();
+          const author = teamMembers.find(member => member.Id === createdComment.author_id_c);
+
+          return {
+            Id: createdComment.Id,
+            itemId: parseInt(commentData.itemId),
+            content: createdComment.content_c,
+            author: author || commentData.author || {
+              Id: 1,
+              name: 'Current User',
+              email: 'user@company.com',
+              avatar: null
+            },
+            mentions: JSON.parse(createdComment.mentions_c || '[]'),
+            createdAt: createdComment.CreatedOn,
+            updatedAt: createdComment.ModifiedOn
+          };
+        }
+      }
+    } catch (error) {
+      console.error("Error creating comment:", error?.response?.data?.message || error);
+      return null;
+    }
+  },
+
+  // Update an existing comment in comment_c table
+  update: async (id, updateData) => {
+    try {
+      const apperClient = commentsService.getApperClient();
+      
+      const updateRecord = { Id: parseInt(id) };
+      
+      if (updateData.content !== undefined) {
+        updateRecord.content_c = updateData.content.trim();
+        
+        // Re-extract mentions if content was updated
+        const mentionMatches = updateData.content.match(/@(\w+(?:\.\w+)*)/g) || [];
+        const mentions = mentionMatches.map(match => match.substring(1));
+        updateRecord.mentions_c = JSON.stringify(mentions);
+      }
+
+      const params = { records: [updateRecord] };
+
+      const response = await apperClient.updateRecord('comment_c', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to update ${failed.length} comments:`, failed);
+          failed.forEach(record => {
+            record.errors?.forEach(error => toast.error(`${error.fieldLabel}: ${error}`));
+            if (record.message) toast.error(record.message);
+          });
+        }
+
+        if (successful.length > 0) {
+          const updatedComment = successful[0].data;
+          
+          // Get author information
+          const teamMembers = await commentsService.getTeamMembers();
+          const author = teamMembers.find(member => member.Id === updatedComment.author_id_c);
+
+          return {
+            Id: updatedComment.Id,
+            itemId: updatedComment.item_id_c,
+            content: updatedComment.content_c,
+            author: author || {
+              Id: updatedComment.author_id_c,
+              name: 'Unknown User',
+              email: 'unknown@company.com',
+              avatar: null
+            },
+            mentions: JSON.parse(updatedComment.mentions_c || '[]'),
+            createdAt: updatedComment.CreatedOn,
+            updatedAt: updatedComment.ModifiedOn
+          };
+        }
+      }
+    } catch (error) {
+      console.error("Error updating comment:", error?.response?.data?.message || error);
+      return null;
+    }
+  },
+
+  // Delete a comment from comment_c table
+  delete: async (id) => {
+    try {
+      const apperClient = commentsService.getApperClient();
+      
+      const params = { 
+        RecordIds: [parseInt(id)]
+      };
+      
+      const response = await apperClient.deleteRecord('comment_c', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return { success: false };
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+        
+        if (failed.length > 0) {
+          console.error(`Failed to delete ${failed.length} comments:`, failed);
+          failed.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        return { success: successful.length > 0 };
+      }
+    } catch (error) {
+      console.error("Error deleting comment:", error?.response?.data?.message || error);
+      return { success: false };
+    }
+  },
+
+  // Get team members for mention suggestions from team_member_c table
+  getTeamMembers: async () => {
+    try {
+      const apperClient = commentsService.getApperClient();
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "name_c"}}, 
+          {"field": {"Name": "username_c"}}, 
+          {"field": {"Name": "email_c"}}
+        ],
+        pagingInfo: {"limit": 100, "offset": 0}
+      };
+
+      const response = await apperClient.fetchRecords('team_member_c', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+
+      return response.data.map(member => ({
+        Id: member.Id,
+        name: member.name_c || 'Unknown User',
+        username: member.username_c || 'unknown',
+        email: member.email_c || 'unknown@company.com',
+        avatar: null,
+        role: 'Team Member'
+      }));
+    } catch (error) {
+      console.error("Error fetching team members:", error?.response?.data?.message || error);
+      return [];
+    }
   },
 
   // Search comments by content
   search: async (itemId, query) => {
-    await new Promise(resolve => setTimeout(resolve, 250))
-    
-    const itemComments = mockComments.filter(comment => 
-      comment.itemId === parseInt(itemId)
-    )
-    
-    if (!query.trim()) {
-      return itemComments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    try {
+      const apperClient = commentsService.getApperClient();
+      
+      let whereConditions = [
+        {"FieldName": "item_id_c", "Operator": "EqualTo", "Values": [parseInt(itemId)]}
+      ];
+
+      if (query && query.trim()) {
+        whereConditions.push({
+          "FieldName": "content_c", 
+          "Operator": "Contains", 
+          "Values": [query.toLowerCase()]
+        });
+      }
+
+      const params = {
+        fields: [
+          {"field": {"Name": "content_c"}},
+          {"field": {"Name": "author_id_c"}},
+          {"field": {"Name": "mentions_c"}},
+          {"field": {"Name": "CreatedOn"}},
+          {"field": {"Name": "ModifiedOn"}}
+        ],
+        where: whereConditions,
+        orderBy: [{"fieldName": "CreatedOn", "sorttype": "ASC"}]
+      };
+
+      const response = await apperClient.fetchRecords('comment_c', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+
+      // Get team members for author information
+      const teamMembers = await commentsService.getTeamMembers();
+      
+      return response.data.map(comment => ({
+        Id: comment.Id,
+        itemId: parseInt(itemId),
+        content: comment.content_c || '',
+        author: teamMembers.find(member => member.Id === comment.author_id_c) || {
+          Id: comment.author_id_c,
+          name: 'Unknown User',
+          email: 'unknown@company.com',
+          avatar: null
+        },
+        mentions: comment.mentions_c ? JSON.parse(comment.mentions_c) : [],
+        createdAt: comment.CreatedOn,
+        updatedAt: comment.ModifiedOn
+      }));
+    } catch (error) {
+      console.error("Error searching comments:", error?.response?.data?.message || error);
+      return [];
     }
-    
-    const lowerQuery = query.toLowerCase()
-    return itemComments
-      .filter(comment => 
-        comment.content.toLowerCase().includes(lowerQuery) ||
-        comment.author.name.toLowerCase().includes(lowerQuery)
-      )
-      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
   },
 
   // Get comments with mentions for a specific user
   getMentions: async (username) => {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    
-    return mockComments
-      .filter(comment => comment.mentions.includes(username))
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-  }
-}
+    try {
+      const apperClient = commentsService.getApperClient();
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "content_c"}},
+          {"field": {"Name": "author_id_c"}},
+          {"field": {"Name": "mentions_c"}},
+          {"field": {"Name": "item_id_c"}},
+          {"field": {"Name": "CreatedOn"}},
+          {"field": {"Name": "ModifiedOn"}}
+        ],
+        where: [{"FieldName": "mentions_c", "Operator": "Contains", "Values": [username]}],
+        orderBy: [{"fieldName": "CreatedOn", "sorttype": "DESC"}]
+      };
 
-export { commentsService }
+      const response = await apperClient.fetchRecords('comment_c', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+
+      // Get team members for author information
+      const teamMembers = await commentsService.getTeamMembers();
+      
+      return response.data
+        .map(comment => ({
+          Id: comment.Id,
+          itemId: comment.item_id_c,
+          content: comment.content_c || '',
+          author: teamMembers.find(member => member.Id === comment.author_id_c) || {
+            Id: comment.author_id_c,
+            name: 'Unknown User',
+            email: 'unknown@company.com',
+            avatar: null
+          },
+          mentions: comment.mentions_c ? JSON.parse(comment.mentions_c) : [],
+          createdAt: comment.CreatedOn,
+          updatedAt: comment.ModifiedOn
+        }))
+        .filter(comment => comment.mentions.includes(username));
+    } catch (error) {
+      console.error("Error fetching mentions:", error?.response?.data?.message || error);
+      return [];
+    }
+  }
+};
+
+export { commentsService };

@@ -77,7 +77,7 @@ useEffect(() => {
   }
 
   const filteredBoards = boards.filter(board => {
-    const matchesSearch = board.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+const matchesSearch = board.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          board.description.toLowerCase().includes(searchTerm.toLowerCase())
     
     switch (filter) {

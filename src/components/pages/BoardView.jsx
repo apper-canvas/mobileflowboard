@@ -213,7 +213,7 @@ const handleItemClick = (item) => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div className="mb-4 lg:mb-0">
             <h1 className="text-2xl font-bold text-gray-900 font-display mb-1">
-              {board.name}
+{board.name}
             </h1>
             {board.description && (
               <p className="text-gray-600 text-sm">{board.description}</p>
