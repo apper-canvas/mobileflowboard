@@ -1,0 +1,142 @@
+@import 'react-toastify/dist/ReactToastify.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Toast Overrides */
+.Toastify__toast-container {
+  width: auto;
+  min-width: 320px;
+  max-width: 480px;
+  z-index: 9999;
+}
+
+.Toastify__toast {
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-height: 48px;
+  padding: 12px 16px;
+}
+
+.Toastify__progress-bar {
+  height: 3px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Board table specific styles */
+.board-table {
+  min-width: 800px;
+}
+
+.board-cell {
+  transition: all 0.15s ease-out;
+}
+
+.board-cell:hover {
+  transform: scale(1.01);
+  border-color: #0073ea;
+  box-shadow: 0 2px 8px rgba(0, 115, 234, 0.15);
+}
+
+.board-row:hover {
+  background-color: #f6f7fb;
+}
+
+.board-row:hover .row-actions {
+  opacity: 1;
+}
+
+.row-actions {
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+
+.status-pill {
+  transition: all 0.15s ease-out;
+}
+
+.status-pill:hover {
+  filter: brightness(1.1);
+}
+
+/* Group styles */
+.group-divider {
+  border-left: 4px solid;
+}
+
+/* Column header styles */
+.column-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.column-header:hover .column-menu-trigger {
+  opacity: 1;
+}
+
+.column-menu-trigger {
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+
+/* Drag and drop styles */
+.dragging {
+  opacity: 0.6;
+  transform: rotate(2deg);
+}
+
+.drag-over {
+  background-color: rgba(0, 115, 234, 0.1);
+  border-color: #0073ea;
+}
+
+/* Animation classes */
+.animate-save {
+  animation: pulse-save 2s ease-in-out infinite;
+}
+
+.fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+.slide-in-right {
+  animation: slide-right 0.3s ease-out;
+}
