@@ -36,7 +36,14 @@ const Sidebar = ({ isOpen, onClose }) => {
         ]
       }
       
-      const createdBoard = await boardService.create(newBoard)
+const createdBoard = await boardService.create(newBoard)
+      
+      // Check if board creation was successful and returned valid data
+      if (!createdBoard || !createdBoard.Id) {
+        toast.error("Failed to create board. Please try again.")
+        return
+      }
+      
       toast.success("Board created successfully!")
       navigate(`/board/${createdBoard.Id}`)
       if (onClose) onClose() // Close sidebar on mobile after creating
