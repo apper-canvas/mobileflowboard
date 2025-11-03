@@ -67,26 +67,26 @@ class BoardService {
         ]
       };
 
-      const response = await this.apperClient.getRecordById('board_c', id, params);
+const response = await this.apperClient.getRecordById('board_c', id, params);
       
       if (!response.success || !response.data) {
-        throw new Error(`Board with id ${id} not found`);
+        return null; // Return null instead of throwing error for missing boards
       }
 
       const board = response.data;
       
-      // Get board items from board_item_c table
+      // Get all board items for this board
       const itemsParams = {
         fields: [
+          {"field": {"Name": "Id"}},
           {"field": {"Name": "title_c"}},
           {"field": {"Name": "status_c"}},
-          {"field": {"Name": "column_values_c"}},
           {"field": {"Name": "group_id_c"}},
+          {"field": {"Name": "column_values_c"}},
           {"field": {"Name": "position_c"}},
           {"field": {"Name": "CreatedOn"}},
           {"field": {"Name": "ModifiedOn"}}
         ],
-        where: [{"FieldName": "board_id_c", "Operator": "EqualTo", "Values": [parseInt(id)]}],
         orderBy: [{"fieldName": "position_c", "sorttype": "ASC"}]
       };
 
