@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
+import { AuthContext } from "../../App";
 import { motion } from "framer-motion";
 import ApperIcon from "@/components/ApperIcon";
 import Button from "@/components/atoms/Button";
@@ -9,9 +10,9 @@ import { cn } from "@/utils/cn";
 
 const Header = ({ onMenuClick, boardName }) => {
   const { boardId } = useParams()
+  const authMethods = useContext(AuthContext);
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [saveStatus, setSaveStatus] = useState("saved") // "saving", "saved", "error"
-
   const handleSearch = (term) => {
     console.log("Searching for:", term)
   }
@@ -136,10 +137,8 @@ const Header = ({ onMenuClick, boardName }) => {
 
           {/* User menu */}
 <div className="relative flex items-center space-x-3">
-            <button 
+<button 
               onClick={async () => {
-                const { AuthContext } = await import('../../App');
-                const authMethods = React.useContext(AuthContext);
                 if (authMethods?.logout) {
                   await authMethods.logout();
                 }
